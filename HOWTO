@@ -1,427 +1,427 @@
-Запуск анализа: python ecg-test.py --file data0.lvm
-Запуск логгера: python logger-ESR.py --port /dev/ttyUSB0
-Для работы скриптов нужны библиотеки питона 2.8:
-matplotlib
-numpy
-scipy
-math
-argparse
-xmltodict
-Их можно установить через утилиту pip (pip install имя_пакета)
+Run the analysis: python ecg-test.py --file data0.lvm
+Running the logger: python logger-ESR.py --port / dev / ttyUSB0
+To work with scripts you need python libraries 2.8:
+Matplotlib
+Numpy
+Scipy
+Math
+Argparse
+Xmltodict
+They can be installed via the pip (pip install package_name) utility
 
-Структура config.xml файла:
-Заголовочные теги:
-<?xml version="1.0"?>
+Structure of the config.xml file:
+Header tags:
+<? Xml version = "1.0"?>
 <root>
-Завершающий тег
+Final tag
 </root>
 
-Внутри тегов <root></root> могут находится несколько типов инструментов:
-<Filters></Filters> - наложение фильтров на сигнал
-<Baseline></Baseline> - вычитание базовой линии из сигнала
-<PeakDetect></PeakDetect> - поиск положения макисмумов и минимумов на графике
-<QRSDetect></QRSDetect> - поиск QRS по вейвлет алгоритму [J.P.V. Madeiro Medical Engineering and Physics Volume 34, Issue 9, Pages 1236-1246 DOI: 10.1016/j.medengphy.2011.12.011 QRS segmentation based on first-derivative, Hilbert and Wavelet Transforms]
-<Spectrum></Spectrum> - построение частотной характеристики сигналов
-<graph></graph> - построение графиков сигналов
-<hist></hist> - построение распределения расстояния между пиками
+There are several types of tools inside the <root> </root> tags:
+<Filters> </Filters> - superimposing filters on the signal
+<Baseline> </Baseline> - Subtraction of the baseline from the signal
+<PeakDetect> </PeakDetect> - search for the position of maxima and minima on the graph
+<QRSDetect> </QRSDetect> - QRS search by wavelet algorithm [J.P.V. Madeiro Medical Engineering and Physics Volume 34, Issue 9, Pages 1236-1246 DOI: 10.1016 / j.medengphy.2011.12.011 QRS segmentation based on first-derivative, Hilbert and Wavelet Transforms]
+<Spectrum> </Spectrum> - building the frequency response of signals
+<graph> </graph> - building waveform graphs
+<Hist> </hist> - the construction of the distribution of the distance between the peaks
 
-1. Фильтры
-Чтобы наложить фильтр на сигнал необходимо внутри тега  <Filters enable='True'></Filters> добавить соответсвующий фильтр:
-       <object type='тип_фильтра' name='имя_выходного массива данных'>       
-          ...параметры фильтра...
-          <data>имя массива данных, к которому примяняется фильтр. Исходный сигнал имеет имя Raw</data>
-       </object>
-Возможны следующие фильтры:
-        1. Скользящее среднее
-        <object type='MovingAverage' name='mva1'>       
-          <windowsize>0.02</windowsize>
-          <data>Raw</data>
-       </object>
-        2. Винеровское оценивание
-        <object type='Wiener' name='wiener'>       
-          <window>40</window>
-          <noise>None</noise>
-          <data>Raw</data>
-       </object>
-       3. Гауссов фильтр (свертка с гауссианом)
-       <object type='Gauss' name='gauss'>       
-          <window>40</window>
-          <sigma>0.05</sigma>
-          <data>Raw</data>
-       </object>
-       4. Полосно-пропускающий фильтр на основе фильтра Баттерворта
-       <object type='BandPass' name='bandpass'>                
-          <LowFreq>0.05</LowFreq>
-          <HighFreq>45</HighFreq>
-          <Order>4</Order>
-          <data>Raw</data>
-       </object> 
-      5. Полосно-вырезающий фильтр на основе фильтра Баттерворта
-       <object type='BandReject' name='bandreject'>                
-          <LowFreq>45</LowFreq>
-          <HighFreq>55</HighFreq>
-          <Order>4</Order>
-          <data>Raw</data>
-       </object> 
-      6. Фильтр нижних частот на основе фильтра Баттерворта
-       <object type='LowPass' name='lowpass'>                
-          <Freq>40</Freq>
-          <Order>4</Order>
-          <data>Raw</data>
-       </object> 
-      7. Фильтр верхних частот на основе фильтра Баттерворта
-       <object type='HighPass' name='highpass'>                
-          <Freq>1</Freq>
-          <Order>4</Order>
-          <data>Raw</data>
-       </object>
-Фильтры могут применяться как к исходному сигналу, так и к отфильтрованному, доступ осуществляется по имени
+1. Filters
+To apply a filter to the signal, you need to add the appropriate filter inside the <Filters enable = 'True'> </Filters> tag:
+       <Object type = 'filter_type' name = 'output_name of the output array'>
+          ... filter options ...
+          <data> is the name of the data array to which the filter is applied. The source signal is named Raw </data>
+       </Object>
+The following filters are possible:
+        1. Moving Average
+        <Object type = 'MovingAverage' name = 'mva1'>
+          <windowsize> 0.02 </windowsize>
+          <data> Raw </data>
+       </Object>
+        2. Wiener Estimation
+        <Object type = 'Wiener' name = 'wiener'>
+          <window> 40 </window>
+          <noise> None </noise>
+          <data> Raw </data>
+       </Object>
+       3. Gaussian filter (convolution with Gaussian)
+       <Object type = 'Gauss' name = 'gauss'>
+          <window> 40 </window>
+          <Sigma> 0.05 </sigma>
+          <data> Raw </data>
+       </Object>
+       4. Band-pass filter based on the Butterworth filter
+       <Object type = 'BandPass' name = 'bandpass'>
+          <LowFreq> 0.05 </LowFreq>
+          <HighFreq> 45 </HighFreq>
+          <order> 4 </Order>
+          <data> Raw </data>
+       </Object>
+      5. Band-filter based on Butterworth filter
+       <Object type = 'BandReject' name = 'bandreject'>
+          <LowFreq> 45 </LowFreq>
+          <HighFreq> 55 </HighFreq>
+          <order> 4 </Order>
+          <data> Raw </data>
+       </Object>
+      6. Low-pass filter based on Butterworth filter
+       <Object type = 'LowPass' name = 'lowpass'>
+          <Freq> 40 </Freq>
+          <order> 4 </Order>
+          <data> Raw </data>
+       </Object>
+      7. High-pass filter based on the Butterworth filter
+       <Object type = 'HighPass' name = 'highpass'>
+          <Freq> 1 </Freq>
+          <order> 4 </Order>
+          <data> Raw </data>
+       </Object>
+Filters can be applied to both the original signal and the filtered one, access is made by name
 
-2. Вычитание базовой линии
-Внутри тега <Baseline enable='True'></Baseline> разместить
-       <object type='тип_вычитания' name='имя_выходного массива данных'>       
-          ...параметры метода...
-          <data>имя массива данных, к которому примяняется фильтр. Исходный сигнал имеет имя Raw</data>
-       </object>
-Доступно три метода вычитания базовой линии:
+2. Subtraction of the baseline
+Inside the <Baseline enable = 'True'> </Baseline> tag, place
+       <Object type = 'subtraction type' name = 'output_name' '
+          ... the parameters of the method ...
+          <data> is the name of the data array to which the filter is applied. The source signal is named Raw </data>
+       </Object>
+There are three methods for subtracting the baseline:
 1.Baseline correction using adaptive iteratively reweighted penalized least squares
-Zhang et al Baseline correction using adaptive iteratively reweighted penalized least squares DOI:10.1039/B922045C, Analyst, 2010,135, 1138-1146 
-          <object name='apls' type='apls'>
-                  <lambda>1e6</lambda>
-                  <ratio>0.01</ratio>
-                  <data>mva1</data> 
-          </object>  
+Zhang et al Baseline correction using adaptive iteratively reweighted penalized least squares DOI: 10.1039 / B922045C, Analyst, 2010,135, 1138-1146
+          <Object name = 'apls' type = 'apls'>
+                  <Lambda> 1e6 </lambda>
+                  <ratio> 0.01 </ratio>
+                  <data> mva1 </data>
+          </Object>
 2. symmetric Least Squares Smoothing https://zanran_storage.s3.amazonaws.com/www.science.uva.nl/ContentPages/443199618.pdf
-          <object name='als' type='als'>
-                   <lambda>1e6</lambda>
-                   <ratio>0.98</ratio>
-                   <data>Raw</data> 
-          </object>
-3. Медианный фильтр:
-          <object name='med' type='med'>
-                   <lambda>0</lambda>
-                   <ratio>181</ratio>
-                   <data>mva1</data> 
-          </object>
-3. Поиск положения макисмумов и минимумов на графике методом peakdetect (по алгоритму функции peakdetect в Matlab)
-  <PeakDetect enable='True'>       
-          <object name='имя_массива_выходных_данных'>
-                      <data>Имя входного массива данных</data>
-                      <interval>минимальный интервал на котором расположены пикт</interval>
-                      <threshold>порог амплитуды для определения пика</threshold>
-                      <type>(max - поиск макисмумов, min - поиск минимумов)</type>
-          </object>
+          <Object name = 'als' type = 'als'>
+                   <Lambda> 1e6 </lambda>
+                   <ratio> 0.98 </ratio>
+                   <data> Raw </data>
+          </Object>
+3. Median filter:
+          <Object name = 'med' type = 'med'>
+                   <Lambda> 0 </lambda>
+                   <ratio> 181 </ratio>
+                   <data> mva1 </data>
+          </Object>
+          
+ 3. Search for the position of the highs and lows on the graph by the peakdetect method (by the algorithm of the function peakdetect in Matlab)
+  <PeakDetect enable = 'True'>
+          <Object name = 'output_name_of_output_data'>
+                      <data> The name of the input data array </data>
+                      <interval> the minimum interval on which the symbol is located </interval>
+                      <threshold> amplitude threshold for peak detection </threshold>
+                      <type> (max - search for maxima, min - search for minima) </type>
+          </Object>
 
-          <object name='aplspeak1'>
-                      <data>apls</data>
-                      <interval>80</interval>
-                      <threshold>0.13</threshold>
-                      <type>min</type>
-          </object>
+          <Object name = 'aplspeak1'>
+                      <data> apls </data>
+                      <interval> 80 </interval>
+                      <threshold> 0.13 </threshold>
+                      <type> min </type>
+          </Object>
 
-  </PeakDetect>
-4. Поиск QRS комплексов по по вейвлет алгоритму [J.P.V. Madeiro Medical Engineering and Physics Volume 34, Issue 9, Pages 1236-1246 DOI: 10.1016/j.medengphy.2011.12.011 QRS segmentation based on first-derivative, Hilbert and Wavelet Transforms]  
+  </PeakDetect>
+4. Search for QRS complexes by wavelet algorithm [J.P.V. Madeiro Medical Engineering and Physics Volume 34, Issue 9, Pages 1236-1246 DOI: 10.1016 / j.medengphy.2011.12.011 QRS segmentation based on first-derivative, Hilbert and Wavelet Transforms]
 
-  <QRSDetect enable='True'>
-    <object name='aplsqrs'> 
-      <data>apls</data> 
-      <interval>10</interval>
-      <threshold>0.001</threshold>
-      <widths>
-            <width>1</width> 
-            <width>2</width> 
-            <width>4</width> 
-            <width>8</width> 
-      </widths>
-    </object>
+  <QRSDetect enable = 'True'>
+    <Object name = 'aplsqrs'>
+      <data> apls </data>
+      <interval> 10 </interval>
+      <threshold> 0.001 </threshold>
+      <widths>
+            <width> 1 </width>
+            <width> 2 </width>
+            <width> 4 </width>
+            <width> 8 </width>
+      </Widths>
+    </Object>
 
-    <object name='aplsqrs2'> 
-      <data>apls1</data> 
-      <interval>10</interval>
-      <threshold>0.001</threshold>
-      <widths>
-            <width>1</width> 
-            <width>2</width> 
-            <width>4</width> 
-            <width>8</width> 
-      </widths>
-    </object>
+    <Object name = 'aplsqrs2'>
+      <data> apls1 </data>
+      <interval> 10 </interval>
+      <threshold> 0.001 </threshold>
+      <widths>
+            <width> 1 </width>
+            <width> 2 </width>
+            <width> 4 </width>
+            <width> 8 </width>
+      </Widths>
+    </Object>
 
-  </QRSDetect> 
-5. Частотный спектр:
-  <Spectrum enable='True'>
-       <object name='spectr1'>
-          <data>имя сигнала_спектр которого надо построить</data>
-       </object>
-       <object name='spectr1'>
-          <data>apls1</data>
-       </object>
+  </QRSDetect>
+5. Frequency spectrum:
+  <Spectrum enable = 'True'>
+       <Object name = 'spectr1'>
+          <data> the name of the waveform of which you want to build </data>
+       </Object>
+       <Object name = 'spectr1'>
+          <data> apls1 </data>
+       </Object>
 
-  </Spectrum>
-6. Построение графиков:
-<graph name='filtered' enable='True'> name может принимать значение ('filtered', 'substr', 'wavelet') - имя каждого из листов создаваемых графиков
-    <plot type='line'> type='line' или 'scatter'
-       <data>filter128</data> имя сигнала, который нужно построить
-       <label>Filtered data 128 Hz</label> подпись в легенде графика
-       <trans>0.6</trans> прозрачность
+  </Spectrum>
+6. Construction of graphs:
+<graph name = 'filtered' enable = 'True'> name can take a value ('filtered', 'substr', 'wavelet') - the name of each of the sheets of created graphs
+    <plot type = 'line'> type = 'line' or 'scatter'
+       <data> filter128 </data> the name of the signal to be built
+       <label> Filtered data 128 Hz </label> label in the graphics legend
+       <trans> 0.6 </trans> Transparency
 
-  <plot type='scatter'>
-       <data>aplspeak</data>
-       <label>Peak detect max</label>
-       <trans>1</trans>
-  </plot>
+  <plot type = 'scatter'>
+       <data> aplspeak </data>
+       <label> Peak detect max </label>
+       <trans> 1 </trans>
+  </plot>
 
 </graph>
 
-Создается 3 поля для графиков, которые имеют имена 'filtered', 'substr', 'wavelet', в кажде из них можно вставлять неограниченное число кривых с помощью тега <plot>
+3 fields are created for the graphs, which have the names 'filtered', 'substr', 'wavelet', in each of them you can insert an unlimited number of curves using the <plot>
 
-7. В случае применения детектирования пиков и QRS рассчитываются интервалы между макисмумами. Распределение интервалов можно построить на гистограмме:
-<hist>
-<data label='Distance QRS peaks'>aplsqrs</data>
-<data label='Distance peakdetect'>aplspeak</data>
+7. In the case of the use of peak detection and QRS, the intervals between the maxima are calculated. The distribution of intervals can be constructed on a histogram:
+<Hist>
+<data label = 'Distance QRS peaks'> aplsqrs </data>
+<data label = 'Distance peakdetect'> aplspeak </data>
 
-</hist>
+</Hist>
 
-Пример файла config.xml
-<?xml version="1.0"?>
+Example config.xml file
+<? Xml version = "1.0"?>
 <root>
-    <Filters enable='True'>
-    <!--К исходному сигналу Raw применяется фильтр скользящего среднего. Отфильтрованный сигнал имеет имя mva1-->
-        <object type='MovingAverage' name='mva1'>       
-          <windowsize>0.02</windowsize>
-          <data>Raw</data>
-       </object>
-    <!--К исходному сигналу Raw применяется полосно-пропускающий фильтр. Отфильтрованный сигнал имеет имя bandpass-->
-       <object type='BandPass' name='bandpass'>                
-          <LowFreq>0.05</LowFreq>
-          <HighFreq>45</HighFreq>
-          <Order>4</Order>
-          <data>Raw</data>
-       </object> 
-         
-  </Filters>
-  <Baseline enable='True'>  
-<!--Вычитание базовой линии, определенной по методу apls из отфильтровнного методом скользящего среднего сигнала. Выходной сигнал имеет имя apls_mva-->     
-          <object name='apls_mva' type='apls'>
-                  <lambda>1e6</lambda>
-                  <ratio>0.01</ratio>
-                  <data>mva1</data> 
-          </object>
-<!--Вычитание базовой линии, определенной по методу apls из отфильтровнного полосно-пропускающим фильтром сигнала. Выходной сигнал имеет имя apls_bandpass-->  
-          <object name='apls_bandpass' type='als'>
-                   <lambda>1e6</lambda>
-                   <ratio>0.98</ratio>
-                   <data>bandpass</data> 
-          </object>
-<!--Вычитание базовой линии, определенной по методу apls из исходного сигнала. Выходной сигнал имеет имя apls_raw-->  
-          <object name='apls_raw' type='als'>
-                   <lambda>1e6</lambda>
-                   <ratio>0.98</ratio>
-                   <data>Raw</data> 
-          </object>
+    <Filters enable = 'True'>
+    <! - A moving average filter is applied to the original Raw signal. The filtered signal has the name mva1 ->
+        <Object type = 'MovingAverage' name = 'mva1'>
+          <windowsize> 0.02 </windowsize>
+          <data> Raw </data>
+       </Object>
+    <! - A bandpass filter is applied to the original Raw signal. The filtered signal has the name bandpass ->
+       <Object type = 'BandPass' name = 'bandpass'>
+          <LowFreq> 0.05 </LowFreq>
+          <HighFreq> 45 </HighFreq>
+          <order> 4 </Order>
+          <data> Raw </data>
+       </Object>
+         
+  </Filters>
+  <Baseline enable = 'True'>
+<! - Subtraction of the baseline determined by the apls method from the moving average filtered signal. The output signal has the name apls_mva ->
+          <Object name = 'apls_mva' type = 'apls'>
+                  <Lambda> 1e6 </lambda>
+                  <ratio> 0.01 </ratio>
+                  <data> mva1 </data>
+          </Object>
+<! - Subtraction of the baseline determined by the apls method from the signal filtered by the bandpass filter. The output signal has the name apls_bandpass ->
+          <Object name = 'apls_bandpass' type = 'als'>
+                   <Lambda> 1e6 </lambda>
+                   <ratio> 0.98 </ratio>
+                   <data> bandpass </data>
+          </Object>
+<! - Subtraction of the baseline determined by the apls method from the original signal. The output signal is named apls_raw ->
+          <Object name = 'apls_raw' type = 'als'>
+                   <Lambda> 1e6 </lambda>
+                   <ratio> 0.98 </ratio>
+                   <data> Raw </data>
+          </Object>
 
-  </Baseline>  
+  </Baseline>
+  <PeakDetect enable = 'True'>
+<! - Search for peaks in the apls_mva signal ->
+          <Object name = 'peak_mva'>
+                      <data> apls_mva </data>
+                      <interval> 80 </interval>
+                      <threshold> 0.13 </threshold>
+                      <type> max </type>
+          </Object>
+<! - Search for peaks in the apls_raw signal ->
+          <Object name = 'peak_raw'>
+                      <data> apls_raw </data>
+                      <interval> 80 </interval>
+                      <threshold> 0.13 </threshold>
+                      <type> max </type>
+          </Object>
+<! - Search for peaks in the apls_bandpass signal ->
+          <Object name = 'peak_bandpass'>
+                      <data> apls_bandpass </data>
+                      <interval> 80 </interval>
+                      <threshold> 0.13 </threshold>
+                      <type> max </type>
+          </Object>
+  </PeakDetect>
 
-  <PeakDetect enable='True'>   
-<!--Поиск пиков в сигнале apls_mva-->       
-          <object name='peak_mva'>
-                      <data>apls_mva</data>
-                      <interval>80</interval>
-                      <threshold>0.13</threshold>
-                      <type>max</type>
-          </object>
-<!--Поиск пиков в сигнале apls_raw-->    
-          <object name='peak_raw'>
-                      <data>apls_raw</data>
-                      <interval>80</interval>
-                      <threshold>0.13</threshold>
-                      <type>max</type>
-          </object>
-<!--Поиск пиков в сигнале apls_bandpass-->    
-          <object name='peak_bandpass'>
-                      <data>apls_bandpass</data>
-                      <interval>80</interval>
-                      <threshold>0.13</threshold>
-                      <type>max</type>
-          </object>
-  </PeakDetect>  
 
+  <QRSDetect enable = 'True'>
+<! - Search QRS in the signal apls_mva ->
+    <Object name = 'qrs_mva'>
+      <data> apls_raw </data>
+      <interval> 10 </interval>
+      <threshold> 0.001 </threshold>
+      <widths>
+            <width> 1 </width>
+            <width> 2 </width>
+            <width> 4 </width>
+            <width> 8 </width>
+      </Widths>
+    </Object>
+<! - Search QRS in the apls_bandpass signal ->
+    <Object name = 'qrs_bandpass'>
+      <data> apls_mva </data>
+      <interval> 10 </interval>
+      <threshold> 0.001 </threshold>
+      <widths>
+            <width> 1 </width>
+            <width> 2 </width>
+            <width> 4 </width>
+            <width> 8 </width>
+      </Widths>
+    </Object>
 
-  <QRSDetect enable='True'>
-<!--Поиск QRS в сигнале apls_mva--> 
-    <object name='qrs_mva'> 
-      <data>apls_raw</data> 
-      <interval>10</interval>
-      <threshold>0.001</threshold>
-      <widths>
-            <width>1</width> 
-            <width>2</width> 
-            <width>4</width> 
-            <width>8</width> 
-      </widths>
-    </object>
-<!--Поиск QRS в сигнале apls_bandpass--> 
-    <object name='qrs_bandpass'> 
-      <data>apls_mva</data> 
-      <interval>10</interval>
-      <threshold>0.001</threshold>
-      <widths>
-            <width>1</width> 
-            <width>2</width> 
-            <width>4</width> 
-            <width>8</width> 
-      </widths>
-    </object>
+    <Object name = 'qrs_raw'>
+      <data> apls_bandpass </data>
+      <interval> 10 </interval>
+      <threshold> 0.001 </threshold>
+      <widths>
+            <width> 1 </width>
+            <width> 2 </width>
+            <width> 4 </width>
+            <width> 8 </width>
+      </Widths>
+    </Object>
+  </QRSDetect>
 
-    <object name='qrs_raw'> 
-      <data>apls_bandpass</data> 
-      <interval>10</interval>
-      <threshold>0.001</threshold>
-      <widths>
-            <width>1</width> 
-            <width>2</width> 
-            <width>4</width> 
-            <width>8</width> 
-      </widths>
-    </object>
-  </QRSDetect>
+  <Spectrum enable = 'True'>
+<! - The construction of the spectrum of signals ->
+       <Object name = 'spectr1'>
+          <data> apls_raw </data>
+       </Object>
+       <Object name = 'spectr2'>
+          <data> apls_bandpass </data>
+       </Object>
+       <Object name = 'spectr3'>
+          <data> apls_mva </data>
+       </Object>
+       <Object name = 'spectr4'>
+          <data> mva1 </data>
+       </Object>
+       <Object name = 'spectr5'>
+          <data> bandpass </data>
+       </Object>
+       <Object name = 'spectr6'>
+          <data> mva1 </data>
+       </Object>
+  </Spectrum>
 
-  <Spectrum enable='True'>
-<!--Построение спектра сигналов--> 
-       <object name='spectr1'>
-          <data>apls_raw</data>
-       </object>
-       <object name='spectr2'>
-          <data>apls_bandpass</data>
-       </object>
-       <object name='spectr3'>
-          <data>apls_mva</data>
-       </object>
-       <object name='spectr4'>
-          <data>mva1</data>
-       </object>
-       <object name='spectr5'>
-          <data>bandpass</data>
-       </object>      
-       <object name='spectr6'>
-          <data>mva1</data>
-       </object> 
-  </Spectrum>
-
-<graph name='filtered' enable='True'>
-<!--Построение графиков до вычитания базовой линии--> 
-    <plot type='line'>
-       <data>Raw</data>
-       <label>Raw data</label>
-       <trans>0.2</trans>
-    </plot>
-       <plot type='line'>
-       <data>mva1</data>
-       <label>Filtered data moving average</label>
-       <trans>0.4</trans>
-  </plot>
-  <plot type='line'>
-       <data>bandpass</data>
-       <label>Bandpass filter 0.05-45 Hz</label>
-       <trans>0.5</trans>
-  </plot>
-<!--Форма базовой линии--> 
-  <plot type='line'>
-       <data>apls_mva_bg</data>
-       <label>Baseline of MVA signal</label>
-       <trans>0.65</trans>
-  </plot>
-  <plot type='line'>
-       <data>apls_bandpass_bg</data>
-       <label>Baseline of bandpass signal</label>
-       <trans>0.65</trans>
-  </plot>
-  <plot type='line'>
-       <data>apls_raw_bg</data>
-       <label>Baseline of raw signal</label>
-       <trans>0.65</trans>
-  </plot>
+<graph name = 'filtered' enable = 'True'>
+<! - Drawing charts before subtracting the baseline ->
+    <plot type = 'line'>
+       <data> Raw </data>
+       <label> Raw data </​​label>
+       <trans> 0.2 </trans>
+    </plot>
+       <plot type = 'line'>
+       <data> mva1 </data>
+       <label> Filtered data moving average </label>
+       <trans> 0.4 </trans>
+  </plot>
+  <plot type = 'line'>
+       <data> bandpass </data>
+       <label> Bandpass filter 0.05-45 Hz </label>
+       <trans> 0.5 </trans>
+  </plot>
+<! - The form of the baseline ->
+  <plot type = 'line'>
+       <data> apls_mva_bg </data>
+       <label> Baseline of MVA signal </label>
+       <trans> 0.65 </trans>
+  </plot>
+  <plot type = 'line'>
+       <data> apls_bandpass_bg </data>
+       <label> Baseline of bandpass signal </label>
+       <trans> 0.65 </trans>
+  </plot>
+  <plot type = 'line'>
+       <data> apls_raw_bg </data>
+       <label> Baseline of raw signal </label>
+       <trans> 0.65 </trans>
+  </plot>
 </graph>
-<!--Построение графиков после вычитания базовой линии--> 
-<graph name='substr' type='plot'>
-  <plot type='line'>
-       <data>apls_raw</data>
-       <label>Apls substraction from Raw signal</label>
-       <trans>0.2</trans>
-  </plot>
-  <plot type='line'>
-       <data>apls_mva</data>
-       <label>Apls substraction from mva signal</label>
-       <trans>0.6</trans>
-  </plot>
-  <plot type='line'>
-       <data>apls_bandpass</data>
-       <label>Apls substraction from bandpass signal</label>
-       <trans>1</trans>
-  </plot>
-  <plot type='scatter'>
-       <data>peak_raw</data>
-       <label>Peak detect raw signal</label>
-       <trans>0.2</trans>
-  </plot>
-  <plot type='scatter'>
-       <data>peak_mva</data>
-       <label>Peak detect mva signal</label>
-       <trans>0.2</trans>
-  </plot>
-  <plot type='scatter'>
-       <data>peak_bandpass</data>
-       <label>Peak detect bandpass signal</label>
-       <trans>0.2</trans>
-  </plot>
+<! - Drawing charts after subtracting the baseline ->
+<graph name = 'substr' type = 'plot'>
+  <plot type = 'line'>
+       <data> apls_raw </data>
+       <label> Apls substraction from Raw signal </label>
+       <trans> 0.2 </trans>
+  </plot>
+  <plot type = 'line'>
+       <data> apls_mva </data>
+       <label> Apls substraction from mva signal </label>
+       <trans> 0.6 </trans>
+  </plot>
+  <plot type = 'line'>
+       <data> apls_bandpass </data>
+       <label> Apls substraction from bandpass signal </label>
+       <trans> 1 </trans>
+  </plot>
+  <plot type = 'scatter'>
+       <data> peak_raw </data>
+       <label> Peak detect raw signal </label>
+       <trans> 0.2 </trans>
+  </plot>
+  <plot type = 'scatter'>
+       <data> peak_mva </data>
+       <label> Peak detect mva signal </label>
+       <trans> 0.2 </trans>
+  </plot>
+  <plot type = 'scatter'>
+       <data> peak_bandpass </data>
+       <label> Peak detect bandpass signal </label>
+       <trans> 0.2 </trans>
+  </plot>
 </graph>
-<!--Построение вейвлет преобразованного сигнала и определение пиокв по нему--> 
-<graph name='wavelet' type='plot'>
-  <plot type='line'>
-<!--Форма преобразованного сигнала -->
-       <data>qrs_raw_wave</data>
-       <label>Wavelet analisis of APLS subst raw signal</label>
-       <trans>0.2</trans>
-  </plot>
-  <plot type='line'>
-<!--Форма преобразованного сигнала -->
-       <data>qrs_mva_wave</data>
-       <label>Wavelet analisis of APLS subst mva signal</label>
-       <trans>0.6</trans>
-  </plot>
-  <plot type='line'>
-<!--Форма преобразованного сигнала -->
-       <data>qrs_bandpass_wave</data>
-       <label>Wavelet analisis of APLS subst bandpass signal</label>
-       <trans>1</trans>
-  </plot>
-<!--Положение пиков -->
-  <plot type='scatter'>
-       <data>qrs_raw</data>
-       <label>Pulse dots of raw </label>
-       <trans>0.2</trans>
-  </plot>
-  <plot type='scatter'>
-       <data>qrs_mva</data>
-       <label>Pulse dots of mva </label>
-       <trans>0.6</trans>
-  </plot>
-  <plot type='scatter'>
-       <data>qrs_bandpass</data>
-       <label>Pulse dots of bandpass </label>
-       <trans>1</trans>
-  </plot>
+<! - The construction of the wavelet of the transformed signal and the determination of the peaks on it ->
+<graph name = 'wavelet' type = 'plot'>
+  <plot type = 'line'>
+<! - Form of the converted signal ->
+       <data> qrs_raw_wave </data>
+       <label> Wavelet analisis of APLS subst raw signal </label>
+       <trans> 0.2 </trans>
+  </plot>
+  <plot type = 'line'>
+<! - Form of the converted signal ->
+       <data> qrs_mva_wave </data>
+       <label> Wavelet analisis of APLS subst mva signal </label>
+       <trans> 0.6 </trans>
+  </plot>
+  <plot type = 'line'>
+  <! - Form of the converted signal ->
+       <data> qrs_bandpass_wave </data>
+       <label> Wavelet analisis of APLS subst bandpass signal </label>
+       <trans> 1 </trans>
+  </plot>
+<! - Location of peaks ->
+  <plot type = 'scatter'>
+       <data> qrs_raw </data>
+       <label> Pulse dots of raw </label>
+       <trans> 0.2 </trans>
+  </plot>
+  <plot type = 'scatter'>
+       <data> qrs_mva </data>
+       <label> Pulse dots of mva </label>
+       <trans> 0.6 </trans>
+  </plot>
+  <plot type = 'scatter'>
+       <data> qrs_bandpass </data>
+       <label> Pulse dots of bandpass </label>
+       <trans> 1 </trans>
+  </plot>
 </graph>
 
 <hist>
-<data label='Distance QRS peaks raw'>qrs_raw</data>
-<data label='Distance QRS peaks mva'>qrs_mva</data>
-<data label='Distance QRS peaks bandpass'>qrs_bandpass</data>
-<data label='Distance peakdetect raw'>peak_raw</data>
-<data label='Distance peakdetect mva'>peak_mva</data>
-<data label='Distance peakdetect bandpass'>peak_bandpass</data>
+<data label = 'Distance QRS peaks raw'> qrs_raw </data>
+<data label = 'Distance QRS peaks mva'> qrs_mva </data>
+<data label = 'Distance QRS peaks bandpass'> qrs_bandpass </data>
+<data label = 'Distance peakdetect raw'> peak_review </data>
+<data label = 'Distance peakdetect mva'> peak_mva </data>
+<data label = 'Distance peakdetect bandpass'> peak_bandpass </data>
 
 </hist>
 
 
-</root> 
+</root>
