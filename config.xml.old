@@ -1,0 +1,279 @@
+<?xml version="1.0"?>
+<root>
+<!--
+Все возможные опции
+    <Filters enable='True'>
+В этом подразделе можно накладывать различные фильтры на сигнал. Тип фильтра указаывается в type
+В теге <data></data> указывается тип данных, к которым применяется данный фильтр, первональные данные имеют имя Raw
+Например наложим фильтр на исходный сигнал Raw, который вырезает полосу 128Гц из сигнала:
+        <object type='Filter128Hz' name='filter128'>       
+          <data>Raw</data>
+       </object>
+Получившийся после фильтрации сигнал будет иметь имя filter128. В дальнейшем к этим данным можно применять другие фильтры, преобразования и строить графики
+
+        <object type='MovingAverage' name='mva1'>       
+          <windowsize>0.02</windowsize>
+          <data>Raw</data>
+       </object>
+
+        <object type='Wiener' name='wiener'>       
+          <window>40</window>
+          <noise>None</noise>
+          <data>Raw</data>
+       </object>
+       <object type='Gauss' name='gauss'>       
+          <window>40</window>
+          <sigma>0.05</sigma>
+          <data>Raw</data>
+       </object>
+       <object type='MovingAverage' name='mva1'>       
+          <windowsize>0.02</windowsize>
+          <data>Raw</data>
+       </object>
+       <object type='BandPass' name='bandpass'>                
+          <LowFreq>0.05</LowFreq>
+          <HighFreq>45</HighFreq>
+          <Order>4</Order>
+          <data>Raw</data>
+       </object> 
+       <object type='BandReject' name='bandreject'>                
+          <LowFreq>45</LowFreq>
+          <HighFreq>55</HighFreq>
+          <Order>4</Order>
+          <data>Raw</data>
+       </object> 
+       <object type='LowPass' name='lowpass'>                
+          <Freq>40</Freq>
+          <Order>4</Order>
+          <data>Raw</data>
+       </object> 
+       <object type='HighPass' name='highpass'>                
+          <Freq>1</Freq>
+          <Order>4</Order>
+          <data>Raw</data>
+       </object>    
+         
+  </Filters>
+  <Baseline enable='True'>       
+          <object name='apls' type='apls'>
+                  <lambda>1e6</lambda>
+                  <ratio>0.01</ratio>
+                  <data>mva1</data> 
+          </object>
+          <object name='als' type='als'>
+                   <lambda>1e6</lambda>
+                   <ratio>0.98</ratio>
+                   <data>Raw</data> 
+          </object>
+          <object name='med' type='med'>
+                   <lambda>0</lambda>
+                   <ratio>181</ratio>
+                   <data>mva1</data> 
+          </object>
+
+  </Baseline>  
+
+  <PeakDetect enable='True'>       
+          <object name='aplspeak'>
+                      <data>apls</data>
+                      <interval>80</interval>
+                      <threshold>0.13</threshold>
+                      <type>max</type>
+          </object>
+
+          <object name='aplspeak1'>
+                      <data>apls</data>
+                      <interval>80</interval>
+                      <threshold>0.13</threshold>
+                      <type>min</type>
+          </object>
+
+  </PeakDetect>  
+
+
+  <QRSDetect enable='True'>
+    <object name='aplsqrs'> 
+      <data>apls</data> 
+      <interval>10</interval>
+      <threshold>0.001</threshold>
+      <widths>
+            <width>1</width> 
+            <width>2</width> 
+            <width>4</width> 
+            <width>8</width> 
+      </widths>
+    </object>
+
+    <object name='aplsqrs2'> 
+      <data>apls1</data> 
+      <interval>10</interval>
+      <threshold>0.001</threshold>
+      <widths>
+            <width>1</width> 
+            <width>2</width> 
+            <width>4</width> 
+            <width>8</width> 
+      </widths>
+    </object>
+
+  </QRSDetect>
+  <Spectrum enable='True'>
+       <object name='spectr1'>
+          <data>apls</data>
+       </object>
+       <object name='spectr1'>
+          <data>apls1</data>
+       </object>
+       <object name='spectr2'>
+          <data>Raw</data>
+       </object>
+       <object name='spectr2'>
+          <data>mva1</data>
+       </object>
+       <object name='spectr3'>
+          <data>bandpass</data>
+       </object>      
+       <object name='spectr4'>
+          <data>bandreject</data>
+       </object> 
+       <object name='spectr5'>
+          <data>lowpass</data>
+       </object>           
+       <object name='spectr6'>
+          <data>highpass</data>
+       </object> 
+       <object name='spectr7'>
+          <data>mva1</data>
+       </object> 
+       <object name='spectr6'>
+          <data>wiener</data>
+       </object> 
+       <object name='spectr6'>
+          <data>gauss</data>
+       </object>
+       <object name='spectr7'>
+          <data>filter128</data>
+       </object>  
+  </Spectrum>
+
+<graph name='filtered' enable='True'>
+    <plot type='line'>
+       <data>filter128</data>
+       <label>Filtered data 128 Hz</label>
+       <trans>0.6</trans>
+  </plot>
+       <plot type='line'>
+       <data>mva1</data>
+       <label>Filtered data moving average</label>
+       <trans>0.6</trans>
+  </plot>
+  <plot type='line'>
+       <data>Raw</data>
+       <label>Raw data</label>
+       <trans>0.3</trans>
+  </plot>
+ <plot type='line'>
+       <data>gauss</data>
+       <label>Raw data</label>
+       <trans>0.6</trans>
+  </plot>
+ <plot type='line'>
+       <data>gauss</data>
+       <label>Raw data</label>
+       <trans>0.6</trans>
+  </plot>
+  <plot type='line'>
+       <data>wiener</data>
+       <label>Raw data</label>
+       <trans>0.3</trans>
+  </plot>
+  <plot type='line'>
+       <data>Raw</data>
+       <label>Raw data</label>
+       <trans>0.3</trans>
+  </plot>
+    <plot type='line'>
+       <data>mva1</data>
+       <label>Moving average</label>
+       <trans>0.1</trans>
+  </plot>
+    <plot type='line'>
+       <data>bandreject</data>
+       <label>Moving average</label>
+       <trans>0.11</trans>
+  </plot>
+    <plot type='line'>
+       <data>lowpass</data>
+       <label>Moving average</label>
+       <trans>0.11</trans>
+  </plot>
+    <plot type='line'>
+       <data>highpass</data>
+       <label>Moving average</label>
+       <trans>0.11</trans>
+  </plot>
+       <plot type='line'>
+       <data>bandpass</data>
+       <label>Bandpass 0.5-45 Hz</label>
+       <trans>0.11</trans>
+</plot>
+  <plot type='line'>
+       <data>apls_bg</data>
+       <label>baseline apls filtered</label>
+       <trans>0.65</trans>
+  </plot>
+  <plot type='line'>
+       <data>apls1_bg</data>
+       <label>baseline apls raw</label>
+       <trans>0.65</trans>
+  </plot>
+  <plot type='scatter'>
+       <data>aplspeak</data>
+       <label>Peak detect max</label>
+       <trans>1</trans>
+  </plot>
+</graph>
+<graph name='substr' type='plot'>
+  <plot type='line'>
+       <data>apls</data>
+       <label>Apls substraction from 128hz filtered</label>
+       <trans>1</trans>
+  </plot>
+  <plot type='line'>
+       <data>apls1</data>
+       <label>Apls substraction from raw data</label>
+       <trans>1</trans>
+  </plot>
+  <plot type='line'>
+       <data>als</data>
+       <label>Als substraction</label>
+       <trans>1</trans>
+  </plot>
+  <plot type='scatter'>
+       <data>aplspeak</data>
+       <label>Peak detect max</label>
+       <trans>1</trans>
+  </plot>
+
+</graph>
+<graph name='wavelet' type='plot'>
+  <plot type='line'>
+       <data>aplsqrs_wave</data>
+       <label>Wavelet analisis of APLS subst 128 Hz filtered data</label>
+       <trans>1</trans>
+  </plot>
+  <plot type='scatter'>
+       <data>aplsqrs</data>
+       <label>Pulse dots of wavelets </label>
+       <trans>1</trans>
+  </plot>
+</graph>
+
+<hist>
+<data label='Distance QRS peaks'>aplsqrs</data>
+<data label='Distance peakdetect'>aplspeak</data>
+
+</hist>
+
+-->
+</root>
