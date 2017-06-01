@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<root>
+  <Baseline enable='True'>  
+<!--Subtraction of the baseline determined by the alps method from the raw signal-->     
+          <object name='apls_raw' type='als'>
+                  <lambda>3e5</lambda>
+                  <ratio>0.1</ratio>
+                  <data>Raw</data> 
+          </object>
+  </Baseline>  
+    <Filters enable='True'>
+    <!--The moving average filter is applied to the apls_raw signal-->
+        <object type='MovingAverage' name='mva'>       
+          <windowsize>4</windowsize>
+          <data>apls_raw</data>
+       </object>
+      
+  </Filters>
+
+<graph name='filtered' enable='True'>
+<!--Draw raw signal--> 
+    <plot type='line'>
+       <data>Raw</data>
+       <label>Raw data</label>
+       <trans>0.2</trans>
+</plot>
+<!--Baseline curve name is (_bg) in addition to the name of baseline object (for example if result of baseline substraction is called apls_raw then baseline curve has name apls_raw_bg--> 
+  <plot type='line'>
+       <data>apls_raw_bg</data>
+       <label>Baseline of MVA signal</label>
+       <trans>0.65</trans>
+  </plot>
+
+</graph>
+<!--Draw signals after filtering--> 
+<graph name='substr' type='plot'>
+  <plot type='line'>
+       <data>apls_raw</data>
+       <label>Apls substraction from Raw signal</label>
+       <trans>0.2</trans>
+  </plot>
+  <plot type='line'>
+       <data>mva</data>
+       <label>Apls substraction from mva signal</label>
+       <trans>0.6</trans>
+</plot>
+ 
+</graph>
+<!--Draw curve after wavelet processing--> 
+
+
+
+</root> 

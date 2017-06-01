@@ -15,7 +15,7 @@ from scipy.sparse.linalg import (inv, spsolve)
 from scipy.signal import medfilt
 from scipy.ndimage import filters
 from peakdetect import peakdetect
-
+import csv
 import xmltodict
 #http://www.nehalemlabs.net/prototype/blog/2013/04/09/an-introduction-to-smoothing-time-series-in-python-part-ii-wiener-filter-and-smoothing-splines/
 #https://docs.scipy.org/doc/scipy/reference/tutorial/signal.html
@@ -172,18 +172,22 @@ def get_spectrum(dat,dx):
   
 def main():
 #Parsing of configure file to the dict
-  with open('config.xml') as fd:
-    doc = xmltodict.parse(fd.read())
+
 
   # create parser
   parser = argparse.ArgumentParser(description="LDR serial")
   # add expected arguments
-  parser.add_argument('--file', dest='file', required=True)
+  parser.add_argument('-f','--file', dest='file', help='input data filename', required=True)
+  parser.add_argument('-c', '--config', dest='config',help='configuration filename', default='config.xml')
+  parser.add_argument('-d', '--divider', dest='divider',help='X scale divider', default='1000')
   # parse args
   args = parser.parse_args()
-  #strPort = '/dev/tty.usbserial-A7006Yqh'
   filename = args.file
+  configfile=args.config
+  divider=np.float(args.divider)
   print('reading from file%s...' % filename)
+  with open(args.config) as fd:
+    doc = xmltodict.parse(fd.read())
   # clean com-port
   data=[]
   x=[]
@@ -191,18 +195,22 @@ def main():
   for line in open(filename):
     columns = line.split('\t')
     if len(columns) >= 2:
-        x.append(np.float(columns[0])/1000)
+        x.append(np.float(columns[0])/divider)
         y.append(np.float(columns[1]))
   #Interpolation input data to align data interval
-  f2 = interp1d(x, y)
-  xnew = np.linspace(0, max(x), len(x), endpoint=True)
   dx=max(x)/len(x)
   fs = 1/dx #The example dataset was recorded at 1/dx
+  print('Sampling rate %.1f Hz' %fs)
   draw_dict={}
   hist_dict={}
-  print('Sampling rate %.1f Hz' %fs)
-  draw_dict['Raw']=f2(xnew)
-
+  try:
+      f2 = interp1d(x, y)
+      xnew = np.linspace(0, max(x), len(x), endpoint=True)
+      draw_dict['Raw']=f2(xnew) 
+      print xnew
+  except:
+      xnew=x
+      draw_dict['Raw']=y      
 #Check in config moving average filter
   
   for kin in doc['root']:
@@ -294,9 +302,10 @@ def main():
               draw_dict[i['@name']]=[xpd,ybeat1]
               hist_dict[i['@name']]=p_interval
    if (kin=='graph'):
+
              f0,ax1 = plt.subplots(1, sharex=False, sharey=False)
-             f1,ax2=plt.subplots(1, sharex=False, sharey=False)
-             f2,ax3=plt.subplots(1, sharex=False, sharey=False)
+             f0,ax2=plt.subplots(1, sharex=False, sharey=False)
+             f0,ax3=plt.subplots(1, sharex=False, sharey=False)
 
              graphp={'filtered':ax1.plot, 'substr':ax2.plot,'wavelet':ax3.plot}
              graphs={'filtered':ax1.scatter, 'substr':ax2.scatter,'wavelet':ax3.scatter}
@@ -324,12 +333,22 @@ def main():
              for i in d:
                     ax4.hist(hist_dict[(i['#text'])],normed=True, bins=100,label=i['@label'])
                     ax4.legend(loc='upper left')
-                
+    
+           
   plt.show()
+  del_index=[]
+  new_dict={}
+  for i in draw_dict: 
+     print i
+     if (len(draw_dict[i])!=2): new_dict[i]=draw_dict[i]
+  new_dict['Aaw_x']=xnew
 
-  
-
-  
+  with open('result.csv', 'wb') as file:
+       writer = csv.writer(file, delimiter='\t')
+       writer.writerow(new_dict.keys())
+       for row in zip(*new_dict.values()):
+          writer.writerow(list(row))
+ 
 
 # call main
 if __name__ == '__main__':
